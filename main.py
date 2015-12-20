@@ -1,7 +1,20 @@
 import pygame, sys, os
 from pygame.locals import *
+import serial
+import threading as t
+FLAG = True
 
 dicc={'a':(0, 576-32)}
+
+def controlArduino(jugador):
+	AR = serial.Serial('/dev/ttyACM0',9600)
+	while FLAG:
+		indicador = AR.readline().strip()
+		if '1' in indicador:
+			print '!',
+			jugador['salto']=1
+		else:
+			jugador['salto']=0
 
 def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
@@ -25,7 +38,7 @@ def mover(jugador, unidad, moment, sprites,noavanzar):
 
 
 #--------------------------------------------------
-# hola
+
 clock       	= pygame.time.Clock()
 Juego 			= 1 #Variable booleana que determina si el bucle sigue
 unidad 			= 4 # Velocidad de movimiento
@@ -39,7 +52,7 @@ jugador			= {
 					"salto":0, 
 					"sprite":0 #Indice del sprite en la lista de los sprites del personaje
 					}
-
+arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
 #Carga de sprites
 background=resize('bg.png', (800, 600))
 personaje.append(resize('koopa1.png', (32, 64)))  # Texturas hacia la derecha
@@ -50,7 +63,7 @@ bloques.append(resize('fg.png', (32, 32)))
 
 pygame.init() #Inicializar pygame
 window=pygame.display.set_mode((800, 576)) #Crea ventana 800x600
-
+arduinoProcess.start()
 
 while Juego:		#Mainloop
 	colisiones=[]
@@ -65,30 +78,33 @@ while Juego:		#Mainloop
 	colisiones.append(window.blit(bloques[0], (600, 512)))
 	pygame.display.update()
 	
+	
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT:
+			FLAG = False
 			sys.exit()
 
-		elif event.type==KEYDOWN:
-			if event.key==K_RIGHT:
-				jugador["direccion"] = "R"
+#		elif event.type==KEYDOWN:
+#			if event.key==K_RIGHT:
+#				jugador["direccion"] = "R"
+#
+#			if event.key==K_LEFT:
+#				jugador["direccion"] = "L"
 
-			if event.key==K_LEFT:
-				jugador["direccion"] = "L"
-
-			if event.key==K_SPACE:
-				jugador['salto'] = 1
+#			if event.key==K_SPACE:
+#				jugador['salto'] = 1
 				
-		elif event.type==KEYUP:
-			if event.key==K_RIGHT:
-				jugador["direccion"] = "N"
+#		elif event.type==KEYUP:
+#			if event.key==K_RIGHT:
+#				jugador["direccion"] = "N"
 
-			if event.key==K_LEFT:
-				jugador["direccion"] = "N"
+#			if event.key==K_LEFT:
+#				jugador["direccion"] = "N"
+#	if saltoArduino and jugador['salto'] == 0:
+#		jugador['salto'] = 1
 
-	moment = pygame.time.get_ticks()
 	noavanzar=0
-
+	moment=pygame.time.get_ticks()
 	listacolisiones = personajeRect.collidelistall(colisiones) #Lista con las colisiones que tiene el personaje
 
 	if listacolisiones==[]:
