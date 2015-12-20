@@ -7,15 +7,17 @@ def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
 	return pygame.transform.scale(image, size)
 
-def mover(jugador, unidad, moment, sprites):
+def mover(jugador, unidad, moment, sprites,noavanzar):
 	if jugador["direccion"] == 'R':
-		jugador["posicion"][0] += unidad
+		if noavanzar!='R':
+			jugador["posicion"][0] += unidad
 		if (moment/100)%2 == 0:
 			jugador["sprite"] = 0
 		else:
 			jugador["sprite"] = 1
 	if jugador["direccion"] == 'L':
-		jugador["posicion"][0] -= unidad
+		if noavanzar!='L':
+			jugador["posicion"][0] -= unidad
 		if (moment/100)%2 == 0:
 			jugador["sprite"] = 2
 		else:
@@ -47,10 +49,10 @@ bloques.append(resize('fg.png', (32, 32)))
 
 pygame.init() #Inicializar pygame
 window=pygame.display.set_mode((800, 576)) #Crea ventana 800x600
-colisiones=[]	#Rects de los bloques
 
 
 while Juego:		#Mainloop
+	colisiones=[]
 	clock.tick(60) #Se setea el maximo fps
 	pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 	window.blit(background, (0, 0)) 													# Fondo del juego
@@ -84,7 +86,7 @@ while Juego:		#Mainloop
 				jugador["direccion"] = "N"
 
 	moment = pygame.time.get_ticks()
-	mover(jugador, unidad, moment, personaje)
+	noavanzar=0
 
 	listacolisiones = personajeRect.collidelistall(colisiones) #Lista con las colisiones que tiene el personaje
 
@@ -93,6 +95,14 @@ while Juego:		#Mainloop
 		jugador["posicion"][1]	+= jugador['gravedad']
 
 	else:
+		for i in colisiones:
+			x1,y1=jugador['posicion']
+			x,y,l,a=i
+			if x1+a==x and (y<=y1<=y1+a or y<=y1+a<=y1+a):
+				noavanzar='R'
+			if x1==x+a and (y<=y1<=y1+a or y<=y1+a<=y1+a):
+				noavanzar='L'
+
 		jugador['gravedad'] 	= 0
 		jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 #Se le sumo uno porque antes rebotaba infinitamente
 
@@ -100,5 +110,5 @@ while Juego:		#Mainloop
 			jugador['gravedad'] 	= -12
 			jugador['posicion'][1] 	+= jugador["gravedad"]
 			jugador['salto'] 		= 0
-
+	mover(jugador, unidad, moment, personaje, noavanzar)
 
