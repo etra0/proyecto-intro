@@ -2,12 +2,15 @@ import pygame, sys, os
 from pygame.locals import *
 import serial
 import threading as t
-FLAG = True
 
+FLAG = True
 dicc={'a':(0, 576-32)}
 
 def controlArduino(jugador):
-	AR = serial.Serial('/dev/ttyACM0',9600)
+	try:
+		AR = serial.Serial('/dev/ttyACM0',9600)
+	except:
+		FLAG = False
 	while FLAG:
 		indicador = AR.readline().strip()
 		if '1' in indicador:
@@ -20,37 +23,37 @@ def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
 	return pygame.transform.scale(image, size)
 
-def mover(jugador, unidad, moment, sprites,noavanzar):
+def mover(jugador, unidad, moment, sprites,noAvanzar):
 	if jugador["direccion"] == 'R':
-		if noavanzar!='R':
+		if noAvanzar!='R':
 			jugador["posicion"][0] += unidad
 		if (moment/100)%2 == 0:
 			jugador["sprite"] = 0
 		else:
 			jugador["sprite"] = 1
 	if jugador["direccion"] == 'L':
-		if noavanzar!='L':
+		if noAvanzar!='L':
 			jugador["posicion"][0] -= unidad
 		if (moment/100)%2 == 0:
 			jugador["sprite"] = 2
-		else:
+		else: 
 			jugador["sprite"] = 3
 
 
 #--------------------------------------------------
 
 clock       	= pygame.time.Clock()
-Juego 			= 1 #Variable booleana que determina si el bucle sigue
-unidad 			= 4 # Velocidad de movimiento
-personaje 		= [] # Lista de sprites del personaje
-bloques 		= [] # Lista de sprites de los bloques
+Juego 			= 1 	#Variable booleana que determina si el bucle sigue
+unidad 			= 4 	# Velocidad de movimiento
+personaje 		= [] 	# Lista de sprites del personaje
+bloques 		= [] 	# Lista de sprites de los bloques
 jugador			= {
 					"posicion":[0, 0], 
 					"gravedad":0, 
 					"vidas":3, 
 					"direccion":'N', 	#N=neutro, L=left, R=right
 					"salto":0, 
-					"sprite":0 #Indice del sprite en la lista de los sprites del personaje
+					"sprite":0 			#Indice del sprite en la lista de los sprites del personaje
 					}
 arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
 #Carga de sprites
@@ -67,7 +70,7 @@ arduinoProcess.start()
 
 while Juego:		#Mainloop
 	colisiones=[]
-	clock.tick(60) #Se setea el maximo fps
+	clock.tick(30) #Se setea el maximo fps
 	pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 	window.blit(background, (0, 0)) 													# Fondo del juego
 	personajeRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])		# Texturas del jugador
@@ -84,26 +87,24 @@ while Juego:		#Mainloop
 			FLAG = False
 			sys.exit()
 
-#		elif event.type==KEYDOWN:
-#			if event.key==K_RIGHT:
-#				jugador["direccion"] = "R"
-#
-#			if event.key==K_LEFT:
-#				jugador["direccion"] = "L"
+		elif event.type==KEYDOWN:
+			if event.key==K_RIGHT:
+				jugador["direccion"] = "R"
 
-#			if event.key==K_SPACE:
-#				jugador['salto'] = 1
+			if event.key==K_LEFT:
+				jugador["direccion"] = "L"
+
+			if event.key==K_SPACE:
+				jugador['salto'] = 1
 				
-#		elif event.type==KEYUP:
-#			if event.key==K_RIGHT:
-#				jugador["direccion"] = "N"
+		elif event.type==KEYUP:
+			if event.key==K_RIGHT:
+				jugador["direccion"] = "N"
 
-#			if event.key==K_LEFT:
-#				jugador["direccion"] = "N"
-#	if saltoArduino and jugador['salto'] == 0:
-#		jugador['salto'] = 1
+			if event.key==K_LEFT:
+				jugador["direccion"] = "N"
 
-	noavanzar=0
+	noAvanzar=0
 	moment=pygame.time.get_ticks()
 	listacolisiones = personajeRect.collidelistall(colisiones) #Lista con las colisiones que tiene el personaje
 
@@ -116,9 +117,9 @@ while Juego:		#Mainloop
 			x1,y1=jugador['posicion']
 			x,y,l,a=i
 			if x1+a==x and (y<=y1<=y1+a or y<=y1+a<=y1+a):
-				noavanzar='R'
+				noAvanzar='R'
 			if x1==x+a and (y<=y1<=y1+a or y<=y1+a<=y1+a):
-				noavanzar='L'
+				noAvanzar='L'
 
 		jugador['gravedad'] 	= 0
 		jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 #Se le sumo uno porque antes rebotaba infinitamente
@@ -127,5 +128,5 @@ while Juego:		#Mainloop
 			jugador['gravedad'] 	= -12
 			jugador['posicion'][1] 	+= jugador["gravedad"]
 			jugador['salto'] 		= 0
-	mover(jugador, unidad, moment, personaje, noavanzar)
+	mover(jugador, unidad, moment, personaje, noAvanzar)
 
