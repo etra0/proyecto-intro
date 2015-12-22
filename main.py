@@ -49,7 +49,6 @@ def mover(jugador, unidad, moment, sprites,noAvanzar):
 
 
 #--------------------------------------------------
-otraVariable	= 'HOLA'
 clock       	= pygame.time.Clock()
 Juego 			= 1 	#Variable booleana que determina si el bucle sigue
 unidad 			= 4 	# Velocidad de movimiento
