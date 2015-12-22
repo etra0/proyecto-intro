@@ -7,17 +7,21 @@ FLAG = True
 dicc={'a':(0, 576-32)}
 
 def controlArduino(jugador):
-	try:
-		AR = serial.Serial('/dev/ttyACM0',9600)
-	except:
-		FLAG = False
+	FLAG = True
+	# try:
+	AR = serial.Serial('/dev/cu.usbmodem1411',9600)
+	# except:
+	# 	FLAG = False
 	while FLAG:
 		indicador = AR.readline().strip()
 		if '1' in indicador:
-			print '!',
 			jugador['salto']=1
 		else:
 			jugador['salto']=0
+		if '2' in indicador:
+			jugador['direccion'] = 'R'
+		else:
+			jugador['direccion'] = 'N'
 
 def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
@@ -36,7 +40,7 @@ def mover(jugador, unidad, moment, sprites,noAvanzar):
 			jugador["posicion"][0] -= unidad
 		if (moment/100)%2 == 0:
 			jugador["sprite"] = 2
-		else: 
+		else:
 			jugador["sprite"] = 3
 
 
@@ -48,11 +52,11 @@ unidad 			= 4 	# Velocidad de movimiento
 personaje 		= [] 	# Lista de sprites del personaje
 bloques 		= [] 	# Lista de sprites de los bloques
 jugador			= {
-					"posicion":[0, 0], 
-					"gravedad":0, 
-					"vidas":3, 
+					"posicion":[0, 0],
+					"gravedad":0,
+					"vidas":3,
 					"direccion":'N', 	#N=neutro, L=left, R=right
-					"salto":0, 
+					"salto":0,
 					"sprite":0 			#Indice del sprite en la lista de los sprites del personaje
 					}
 arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
@@ -70,7 +74,7 @@ arduinoProcess.start()
 
 while Juego:		#Mainloop
 	colisiones=[]
-	clock.tick(30) #Se setea el maximo fps
+	clock.tick(60) #Se setea el maximo fps
 	pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 	window.blit(background, (0, 0)) 													# Fondo del juego
 	personajeRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])		# Texturas del jugador
@@ -80,8 +84,8 @@ while Juego:		#Mainloop
 
 	colisiones.append(window.blit(bloques[0], (600, 512)))
 	pygame.display.update()
-	
-	
+
+
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT:
 			FLAG = False
@@ -96,7 +100,7 @@ while Juego:		#Mainloop
 
 			if event.key==K_SPACE:
 				jugador['salto'] = 1
-				
+
 		elif event.type==KEYUP:
 			if event.key==K_RIGHT:
 				jugador["direccion"] = "N"
@@ -104,7 +108,7 @@ while Juego:		#Mainloop
 			if event.key==K_LEFT:
 				jugador["direccion"] = "N"
 
-	noAvanzar=0
+	noAvanzar = 0
 	moment=pygame.time.get_ticks()
 	listacolisiones = personajeRect.collidelistall(colisiones) #Lista con las colisiones que tiene el personaje
 
@@ -113,10 +117,10 @@ while Juego:		#Mainloop
 		jugador["posicion"][1]	+= jugador['gravedad']
 
 	else:
-		for i in colisiones:
+		for bloque in colisiones:
 			x1,y1=jugador['posicion']
-			x,y,l,a=i
-			if x1+a==x and (y<=y1<=y1+a or y<=y1+a<=y1+a):
+			x, y, l, a = bloque				# Coordenada X , coordenada Y, Longitud y altura
+			if x1+a == x and (y <= y1 <= y1+a or y <= y1+a <= y1+a):
 				noAvanzar='R'
 			if x1==x+a and (y<=y1<=y1+a or y<=y1+a<=y1+a):
 				noAvanzar='L'
@@ -124,9 +128,8 @@ while Juego:		#Mainloop
 		jugador['gravedad'] 	= 0
 		jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 #Se le sumo uno porque antes rebotaba infinitamente
 
-		if jugador['salto']==1:
+		if jugador['salto'] == 1:
 			jugador['gravedad'] 	= -12
 			jugador['posicion'][1] 	+= jugador["gravedad"]
 			jugador['salto'] 		= 0
 	mover(jugador, unidad, moment, personaje, noAvanzar)
-
