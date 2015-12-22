@@ -27,6 +27,7 @@ def controlArduino(jugador):
 		elif '4' in indicador:
 			jugador['direccion'] = 'N'
 
+
 def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
 	return pygame.transform.scale(image, size)
