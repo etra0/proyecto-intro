@@ -1,44 +1,36 @@
 import pygame, sys, os
 from pygame.locals import *
-#import serial
+import serial
 import threading as t
-import time
+from time import sleep
 
 FLAG = True
-dicc={'a':[[0, 544],[600, 512]]}
-for i in xrange(100):
-	dicc['a'].append([32*i,544])
+dicc={'a':(0, 576-32)}
 
-# def controlArduino(jugador):
-# 	global FLAG
-# 	try:
-# 		AR = serial.Serial('/dev/ttyACM0',9600)
-# 	except:
-# 		FLAG = False
-# 	while FLAG:
-# 		indicador = AR.readline().strip()
-# 		if '1' in indicador:
-# 			jugador['salto']=1
+def controlArduino(jugador):
+	global FLAG
+	try:
+		AR = serial.Serial('/dev/ttyACM0',9600)
+	except:
+		FLAG = False
+	while FLAG:
+		indicador = AR.readline().strip()
+		if '1' in indicador:
+			jugador['salto']=1
 
-# 		elif '2' in indicador:
-# 			jugador['salto']=0
+		elif '2' in indicador:
+			jugador['salto']=0
 
-# 		if '3' in indicador:
-# 			jugador['direccion'] = 'R'
+		if '3' in indicador:
+			jugador['direccion'] = 'R'
 
-# 		elif '4' in indicador:
-# 			jugador['direccion'] = 'N'
+		elif '4' in indicador:
+			jugador['direccion'] = 'N'
 
 
 def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
 	return pygame.transform.scale(image, size)
-
-def moverPantalla(velHor,acelHor,bloques):
-	velHor+=acelHor
-	for i in bloques.values()[0]:
-		i[0]-=velHor
-	return None
 
 def mover(jugador, unidad, moment, sprites,noAvanzar):
 	if jugador["direccion"] == 'R':
@@ -58,13 +50,12 @@ def mover(jugador, unidad, moment, sprites,noAvanzar):
 
 
 #--------------------------------------------------
+
 clock       	= pygame.time.Clock()
 Juego 			= 1 	#Variable booleana que determina si el bucle sigue
 unidad 			= 4 	# Velocidad de movimiento
 personaje 		= [] 	# Lista de sprites del personaje
 bloques 		= [] 	# Lista de sprites de los bloques
-acelHor			= 0
-velHor			= 1
 jugador			= {
 					"posicion":[0, 0],
 					"gravedad":0,
@@ -73,7 +64,7 @@ jugador			= {
 					"salto":0,
 					"sprite":0 			#Indice del sprite en la lista de los sprites del personaje
 					}
-#arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
+arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
 #Carga de sprites
 background=resize('bg.png', (800, 600))
 personaje.append(resize('koopa1.png', (32, 64)))  # Texturas hacia la derecha
@@ -84,7 +75,7 @@ bloques.append(resize('fg.png', (32, 32)))
 
 pygame.init() #Inicializar pygame
 window=pygame.display.set_mode((800, 576)) #Crea ventana 800x600
-#arduinoProcess.start()
+arduinoProcess.start()
 
 while Juego:		#Mainloop
 	colisiones=[]
@@ -92,21 +83,18 @@ while Juego:		#Mainloop
 	pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 	window.blit(background, (0, 0)) 													# Fondo del juego
 	personajeRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])		# Texturas del jugador
-	# for i in xrange(25):						#anadir Bloques a la ventana principal
-	# 	x, y=dicc['a']
-	# 	colisiones.append(window.blit(bloques[0], (x+i*32, y)))
-	# colisiones.append(window.blit(bloques[0], (600, 512)))
-	for i in dicc:
-		for bloque in dicc[i]:
-			colisiones.append(window.blit(bloques[0],(bloque[0],bloque[1])))
+	for i in xrange(25):		#anadir Bloques a la ventana principal
+		x, y=dicc['a']
+		colisiones.append(window.blit(bloques[0], (x+i*32, y)))
 
+	colisiones.append(window.blit(bloques[0], (600, 512)))
 	pygame.display.update()
 
 
 	for event in pygame.event.get():
 		if event.type==pygame.QUIT:
 			FLAG = False
-			#time.sleep(5)
+			sleep(5)
 			sys.exit()
 
 		elif event.type==KEYDOWN:
@@ -151,14 +139,7 @@ while Juego:		#Mainloop
 			jugador['posicion'][1] 	+= jugador["gravedad"]
 			jugador['salto'] 		= 0
 
-
-	if jugador['posicion'][0] > 800 or jugador ['posicion'][1]>600:
+	if jugador['posicion'][0] > 800:
 		jugador['posicion'] = [0,0]
 
 	mover(jugador, unidad, moment, personaje, noAvanzar)
-
-	if moment%100==0:
-		acelHor += 1
-
-	moverPantalla(velHor,acelHor,dicc)
-
