@@ -182,7 +182,7 @@ while Juego:																# Mainloop
 			x1, y1 = jugador['posicion']									# Coordenada x1, y1 del jugador
 			x, y = k
 
-			if x==x1+bAcum+32 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
+			if (max(x1+bAcum+32,x+32)-min(x1+bAcum,x))<65 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
 				#if [x,y] in diccBloques['fire']:
 				#	jugador['vidas']-=1
 				#	jugador['posicion']=[400,0]
