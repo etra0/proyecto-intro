@@ -17,8 +17,8 @@ for i in xrange(1000):
 		diccBloques['brick'].append([32*i,544])
 		cont+=1
 
-#for k in xrange(25):
-#	diccBloques['rock'].append([32*k*3,544-randint(1,3)*32])
+for k in xrange(25):
+	diccBloques['rock'].append([32*k*3,544-randint(1,3)*32])
 
 # for k in xrange(25):
 # 	diccBloques['fire'].append([32*k*3,544-randint(1,3)*32])
@@ -182,7 +182,7 @@ while Juego:																# Mainloop
 			x1, y1 = jugador['posicion']									# Coordenada x1, y1 del jugador
 			x, y = k
 
-			if x<x1+bAcum+32<x+32 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
+			if x==x1+bAcum+32 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
 				#if [x,y] in diccBloques['fire']:
 				#	jugador['vidas']-=1
 				#	jugador['posicion']=[400,0]
