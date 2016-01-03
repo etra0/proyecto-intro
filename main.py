@@ -17,8 +17,8 @@ for i in xrange(1000):
 		diccBloques['brick'].append([32*i,544])
 		cont+=1
 
-for k in xrange(25):
-	diccBloques['rock'].append([32*k*3,544-randint(1,3)*32])
+#for k in xrange(25):
+#	diccBloques['rock'].append([32*k*3,544-randint(1,3)*32])
 
 # for k in xrange(25):
 # 	diccBloques['fire'].append([32*k*3,544-randint(1,3)*32])
@@ -81,7 +81,7 @@ unidad 			= 4 						# Velocidad de movimiento
 personaje 		= [] 						# Lista de sprites del personaje
 bloques 		= dict() 					# Lista de sprites de los bloques
 acelHor			= 0							# Aceleracion Horizontal
-velHor			= 5							# Velocidad Horizontal
+velHor			= 1							# Velocidad Horizontal
 jugador			= {
 					"posicion":[400, 0],	# Posicion inicial del jugador
 					"gravedad":0,			# Indicador de gravedad ***
@@ -182,15 +182,12 @@ while Juego:																# Mainloop
 			x1, y1 = jugador['posicion']									# Coordenada x1, y1 del jugador
 			x, y = k
 
-			if x1+bAcum+31 >= x and x1+bAcum+32 <= x+32 and (y < y1+32 < y+64 or y < y1+63 < y+64):				# Comparacion de posicion por la derecha
+			if x<x1+bAcum+32<x+32 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
 				#if [x,y] in diccBloques['fire']:
 				#	jugador['vidas']-=1
 				#	jugador['posicion']=[400,0]
 				#else:
 				jugador['posicion'][0] -= velHor						# Debe retroceder (<-)
-				jugador['posicion'][0] = x-bAcum-33
-			elif y < y1+32 < y+64 or y < y1+63 < y+64:
-				TEST = True
 
 			
 			if y1 == y+32 and (x < x1+bAcum < x+32 or x < x1+32+bAcum < x+32):
