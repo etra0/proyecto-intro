@@ -12,17 +12,17 @@ cont=0
 for i in xrange(1000):
 	if cont%2==0:
 		if randint(0,1):
-			diccBloques['brick'].append([32*i,544])
+			diccBloques['brick'].append([64*i,544])
 		cont+=1
 	else:
-		diccBloques['brick'].append([32*i,544])
+		diccBloques['brick'].append([64*i,544])
 		cont+=1
 
 for k in xrange(25):
-	diccBloques['rock'].append([32*k*3,544-randint(1,3)*32])
+	diccBloques['rock'].append([64*k*3,544-randint(1,3)*64])
 
 # for k in xrange(25):
-# 	diccBloques['fire'].append([32*k*3,544-randint(1,3)*32])
+# 	diccBloques['fire'].append([64*k*3,544-randint(1,3)*64])
 
 # def controlArduino(jugador):
 
@@ -61,16 +61,16 @@ def animacion(jugador, unidad, timeguide, sprites):
 	elif timeguide%3==2:
 		bloques['fire']=resize('fire1.png', (16, 16))
 	if timeguide%4==0:
-		bloques['brick']=resize('brick1.png', (32, 32))
+		bloques['brick']=resize('brick1.png', (64, 64))
 		jugador["sprite"]=2
 	elif timeguide%4==1:
-		bloques['brick']=resize('brick2.png', (32, 32))
+		bloques['brick']=resize('brick2.png', (64, 64))
 		jugador["sprite"]=1
 	elif timeguide%4==2:
-		bloques['brick']=resize('brick3.png', (32, 32))
+		bloques['brick']=resize('brick3.png', (64, 64))
 		jugador["sprite"]=3
 	elif timeguide%4==3:
-		bloques['brick']=resize('brick4.png', (32, 32))
+		bloques['brick']=resize('brick4.png', (64, 64))
 		jugador["sprite"]=4
 
 
@@ -103,22 +103,20 @@ font 			= pygame.font.Font(None, 80)
 #--------------------------------------------------------------------------------------
 # Carga de sprites
 background = resize('bg.png', (800, 600))												# Texturas del background
-personaje.append (resize('monkey1.png', (32, 32)))  										# Texturas hacia la derecha
-personaje.append (resize('monkey2.png', (32, 32)))										# """"
-personaje.append (resize('monkey3.png', (32, 32)))
-personaje.append (resize('monkey4.png', (32, 32)))
-personaje.append (resize('monkey5.png', (32, 32)))
-personaje.append (resize('monkey6.png', (32, 32)))
-personaje.append (pygame.transform.flip(resize('koopa1.png', (32, 64)), True, False)) 	# Texturas hacia la izquierda (derecha con flip)
-personaje.append(pygame.transform.flip(resize('koopa2.png', (32, 64)), True, False))	# """"
-bloques['rock']=resize('rock.png', (32, 32))											# Texturas del bloque 1 (solido, no dano)
+personaje.append (resize('monkey1.png', (64, 64)))  										# Texturas hacia la derecha
+personaje.append (resize('monkey2.png', (64, 64)))										# """"
+personaje.append (resize('monkey3.png', (64, 64)))
+personaje.append (resize('monkey4.png', (64, 64)))
+personaje.append (resize('monkey5.png', (64, 64)))
+personaje.append (resize('monkey6.png', (64, 64)))
+bloques['rock']=resize('rock.png', (64, 64))											# Texturas del bloque 1 (solido, no dano)
 bloques['fire']=resize('fire1.png', (16, 16))
-bloques['brick']=resize('brick1.png', (32, 32))
+bloques['brick']=resize('brick1.png', (64, 64))
 
 #
 #--------------------------------------------------------------------------------------
 
-window=pygame.display.set_mode((800, 576))	#Crea ventana 800x576
+window=pygame.display.set_mode((800, 600))	#Crea ventana 800x576
 pygame.mixer.music.load("data/mainloop.mp3")
 pygame.mixer.music.set_volume(0.15)
 jump=pygame.mixer.Sound("data/jump.wav")
@@ -170,11 +168,11 @@ while Juego:																# Mainloop
 			x, y = colisiones[i][:2]
 			x1, y1 = jugador['posicion']
 
-			if y < y1+32 < y+32 or y < y1 < y+32 and x < x1+32 < x+32:				# Comparacion de posicion por la derecha
-				jugador['posicion'][0] = x-33
+			if y < y1 < y+64 and x < x1+64 < x+64:				# Comparacion de posicion por la derecha
+				jugador['posicion'][0] = x-65
 
-			if  colisiones[i][1] < y1+64 < colisiones[i][1]+32 and x1+20 > colisiones[i][0] and x1+20 < colisiones[i][0]+32:
-				jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
+			if  colisiones[i][1] < y1+64 < colisiones[i][1]+64 and x1+52 > colisiones[i][0] and x1+52 < colisiones[i][0]+64:
+				jugador['posicion'][1] 	= (jugador["posicion"][1])/64*64+32 			# Se le sumo uno porque antes rebotaba infinitamente
 				jugador['gravedad'] 	= 0
 				jugador["cayendo"] 		= False
 
