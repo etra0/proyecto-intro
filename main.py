@@ -177,34 +177,29 @@ while Juego:																# Mainloop
 			x1, y1 = jugador['posicion']									# Coordenada x1, y1 del jugador
 			x, y = k
 
-			if (max(x1+bAcum+32,x+32)-min(x1+bAcum,x))<65 and (max(y1+64,y+32) - min(y1,y)) < 95:				# Comparacion de posicion por la derecha
+			if (max(x1+bAcum+32,x+32)-min(x1+bAcum,x))<63 and (max(y1+64,y+32) - min(y1,y)) < 94:				# Comparacion de posicion por la derecha
 				#if [x,y] in diccBloques['fire']:
 				#	jugador['vidas']-=1
 				#	jugador['posicion']=[400,0]
 				#else:
-				jugador['posicion'][0] -= velHor						# Debe retroceder (<-)
+				# jugador['posicion'][0] -= velHor						# Debe retroceder (<-)
 
+				jugador['posicion'][0] = x-33-bAcum
 			
-			if y1 == y+32 and (x < x1+bAcum < x+32 or x < x1+32+bAcum < x+32):
-				pass
+			if listaColisiones != []:							# No tiene gravedad debido a que colisiona
+				if y+64 > colisiones[listaColisiones[0]][1] and x+20 < colisiones[listaColisiones[0]][0]:
+					jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
 
-	# Comparacion de colisiones
-	if listaColisiones==[]:													#Si esta en el aire (no colisiones), debe caer (gravedad)
-		jugador["gravedad"] 	+= 1										
-		jugador["posicion"][1]	+= jugador["gravedad"]
-
-	else:
-		jugador['gravedad'] 	= 0				
-		if TEST:							# No tiene gravedad debido a que colisiona
-			jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
-
+	print listaColisiones, jugador["gravedad"]
+	if listaColisiones == []:
 		if jugador['salto'] == 1:											# Definicion de salto
 			jugador['gravedad'] 	= -12
 			jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
 			jugador['salto'] 		= 0
 			jump.play()
-	TEST = True
-
+		else:
+			jugador["gravedad"] 	+= 1										
+			jugador["posicion"][1]	+= jugador["gravedad"]
 
 	if jugador['posicion'][0] > 800 or jugador ['posicion'][1] > 600:		# Definicion de perder (WIP)
 		jugador['posicion'] = [400,0]
