@@ -181,7 +181,7 @@ while Juego:																# Mainloop
 			if y < y1+32 < y+32 or y < y1 < y+32 and x < x1+32 < x+32:				# Comparacion de posicion por la derecha
 				jugador['posicion'][0] = x-33
 
-			if y1+64 > colisiones[i][1] and x1+20 > colisiones[i][0]:
+			if  colisiones[i][1] < y1+64 < colisiones[i][1]+32 and x1+20 > colisiones[i][0] and x1+20 < colisiones[i][0]+32:
 				jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
 				jugador['gravedad'] 	= 0
 				jugador["cayendo"] 		= False
