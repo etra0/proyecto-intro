@@ -1,6 +1,7 @@
 import pygame, sys, os, time
 from pygame.locals import *
 #import serial
+from time import sleep
 import threading as t
 from random import randint
 
@@ -89,7 +90,8 @@ jugador			= {
 					"vidas":3,				# WIP
 					"direccion":'N', 		# N=neutro, L=left, R=right
 					"salto":0,				# Indicador de salto
-					"sprite":0 				# Indice del sprite en la lista de los sprites del personaje
+					"sprite":0, 				# Indice del sprite en la lista de los sprites del personaje
+					"cayendo":False
 					}
 font 			= pygame.font.Font(None, 80)
 
@@ -112,11 +114,10 @@ bloques['brick']=resize('brick1.png', (32, 32))
 #--------------------------------------------------------------------------------------
 
 window=pygame.display.set_mode((800, 576))	#Crea ventana 800x576
-pygame.mixer.music.load("data/loop.mp3")
+pygame.mixer.music.load("data/mainloop.mp3")
 pygame.mixer.music.set_volume(0.15)
 jump=pygame.mixer.Sound("data/jump.wav")
 pygame.mixer.music.play(-1)
-TEST = True
 
 while Juego:																# Mainloop
 
@@ -172,34 +173,30 @@ while Juego:																# Mainloop
 	elif timeguide%4==3:
 		bloques['brick']=resize('brick4.png', (32, 32))
 
-	for tipo in diccBloques.values():
-		for k in tipo:
-			x1, y1 = jugador['posicion']									# Coordenada x1, y1 del jugador
-			x, y = k
+	if listaColisiones != []:
+		for i in listaColisiones:
+			x, y = colisiones[i][:2]
+			x1, y1 = jugador['posicion']
 
-			if (max(x1+bAcum+32,x+32)-min(x1+bAcum,x))<63 and (max(y1+64,y+32) - min(y1,y)) < 94:				# Comparacion de posicion por la derecha
-				#if [x,y] in diccBloques['fire']:
-				#	jugador['vidas']-=1
-				#	jugador['posicion']=[400,0]
-				#else:
-				# jugador['posicion'][0] -= velHor						# Debe retroceder (<-)
+			if y < y1+32 < y+32 or y < y1 < y+32 and x < x1+32 < x+32:				# Comparacion de posicion por la derecha
+				jugador['posicion'][0] = x-33
 
-				jugador['posicion'][0] = x-33-bAcum
-			
-			if listaColisiones != []:							# No tiene gravedad debido a que colisiona
-				if y+64 > colisiones[listaColisiones[0]][1] and x+20 < colisiones[listaColisiones[0]][0]:
-					jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
+			if y1+64 > colisiones[i][1] and x1+20 > colisiones[i][0]:
+				jugador['posicion'][1] 	= (jugador["posicion"][1])/32*32+1 			# Se le sumo uno porque antes rebotaba infinitamente
+				jugador['gravedad'] 	= 0
+				jugador["cayendo"] 		= False
 
-	print listaColisiones, jugador["gravedad"]
-	if listaColisiones == []:
-		if jugador['salto'] == 1:											# Definicion de salto
-			jugador['gravedad'] 	= -12
-			jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
-			jugador['salto'] 		= 0
-			jump.play()
-		else:
-			jugador["gravedad"] 	+= 1										
-			jugador["posicion"][1]	+= jugador["gravedad"]
+			else: jugador["cayendo"] 	= True
+
+			if jugador['salto'] == 1:											# Definicion de salto
+				jugador['gravedad'] 	= -12
+				jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
+				jugador['salto'] 		= 0
+				jump.play()
+
+	if listaColisiones == [] or jugador["cayendo"]:
+		jugador["gravedad"] += 1
+		jugador["posicion"][1]	+= jugador["gravedad"]
 
 	if jugador['posicion'][0] > 800 or jugador ['posicion'][1] > 600:		# Definicion de perder (WIP)
 		jugador['posicion'] = [400,0]
