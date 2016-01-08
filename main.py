@@ -73,6 +73,7 @@ def mover(jugador, unidad, moment, sprites):	# WIP
 
 
 #--------------------------------------------------
+pygame.init() 								#Inicializar pygame
 
 clock       	= pygame.time.Clock()
 bAcum			= 0							# Posicion acumulada del movimiento horizontal
@@ -81,7 +82,7 @@ unidad 			= 4 						# Velocidad de movimiento
 personaje 		= [] 						# Lista de sprites del personaje
 bloques 		= dict() 					# Lista de sprites de los bloques
 acelHor			= 0							# Aceleracion Horizontal
-velHor			= 1							# Velocidad Horizontal
+velHor			= 5							# Velocidad Horizontal
 jugador			= {
 					"posicion":[400, 0],	# Posicion inicial del jugador
 					"gravedad":0,			# Indicador de gravedad ***
@@ -90,6 +91,7 @@ jugador			= {
 					"salto":0,				# Indicador de salto
 					"sprite":0 				# Indice del sprite en la lista de los sprites del personaje
 					}
+font 			= pygame.font.Font(None, 80)
 
 # Inicio de identificacion del control de Arduino
 #arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
@@ -109,7 +111,6 @@ bloques['brick']=resize('brick1.png', (32, 32))
 #
 #--------------------------------------------------------------------------------------
 
-pygame.init() 								#Inicializar pygame
 window=pygame.display.set_mode((800, 576))	#Crea ventana 800x576
 pygame.mixer.music.load("data/loop.mp3")
 pygame.mixer.music.set_volume(0.15)
@@ -119,12 +120,17 @@ TEST = True
 
 while Juego:																# Mainloop
 
+
+
+
 	colisiones=[]															# Lista de colisiones
 	clock.tick(60) 															# Se setea el maximo fps
 	pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 
-	for i in xrange(10):													# Dibujo de background
-		window.blit(background, (800*i-bAcum, 0))							# """"
+	window.blit(background, (0-bAcum%800, 0))
+	window.blit(background, (800-bAcum%800, 0))
+	# for i in xrange(10):													# Dibujo de background
+	# 	window.blit(background, (800*i-bAcum, 0))							# """"
 
 	jugRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])	# Rect del jugador, sirve para comparar colisiones
 
@@ -132,31 +138,20 @@ while Juego:																# Mainloop
 		for bloque in diccBloques[i]:
 			colisiones.append(window.blit(bloques[i],(bloque[0]-bAcum,bloque[1])))
 
+	textVidas = font.render("Vidas: {0}".format(jugador["vidas"]), 1, (255, 255, 255))
+	window.blit(textVidas, (0, 0))
+
 	pygame.display.update()													# Actualizar la pantalla
 
 
 	for event in pygame.event.get():										# Reconocimiento de eventos
 		if event.type==pygame.QUIT:
 			FLAG = False
-			#time.sleep(5)
 			sys.exit()
 
 		elif event.type==KEYDOWN:
-		# 	if event.key==K_RIGHT:											# En la version final del juego se debe eliminar esto,
-		# 		jugador["direccion"] = "R"									# se deja como debug.
-
-		# 	if event.key==K_LEFT:
-		# 		jugador["direccion"] = "L"
-
 		 	if event.key==K_SPACE:
 		 		jugador['salto'] = 1
-
-		# elif event.type==KEYUP:
-		# 	if event.key==K_RIGHT:
-		# 		jugador["direccion"] = "N"
-
-		# 	if event.key==K_LEFT:
-		# 		jugador["direccion"] = "N"
 
 	moment = pygame.time.get_ticks()										# Variable independiente para dibujar la animacion del jugador
 	listaColisiones = jugRect.collidelistall(colisiones) 					# Lista con las colisiones que tiene el personaje
@@ -211,13 +206,6 @@ while Juego:																# Mainloop
 	TEST = True
 
 
-
-
-
-		#if x1==x+a and (y<=y1<=y1+a or y<=y1+a<=y1+a):					# Comparacion de posicion por la izquierda	(WIP)
-		#	jugador['posicion'][0]+=velHor								# Debe avanzar (->)							(WIP)
-
-
 	if jugador['posicion'][0] > 800 or jugador ['posicion'][1] > 600:		# Definicion de perder (WIP)
 		jugador['posicion'] = [400,0]
 		jugador['gravedad'] = 0
@@ -230,4 +218,5 @@ while Juego:																# Mainloop
 	# moverPantalla(diccBloques)												# Mover bloques
 	bAcum+=velHor															# 
 	#acelHor=0
+	
 
