@@ -53,24 +53,25 @@ def resize(image, size):
 	image=(pygame.image.load(os.path.join('data', image)))
 	return pygame.transform.scale(image, size)
 
-def mover(jugador, unidad, moment, sprites):	# WIP
-
-	# if jugador["direccion"] == 'R':
-	# 	if noAvanzar!='R':
-	# 		jugador["posicion"][0] += unidad
-
-	if (moment/100)%2 == 0:
-		jugador["sprite"] = 0
-	else:
-		jugador["sprite"] = 1
-
-	# if jugador["direccion"] == 'L':
-	# 	if noAvanzar!='L':
-	# 		jugador["posicion"][0] -= unidad
-	#if (moment/100)%2 == 0:
-	#	jugador["sprite"] = 2
-	#else:
-	#	jugador["sprite"] = 3
+def animacion(jugador, unidad, timeguide, sprites):
+	if timeguide%3==0:
+		bloques['fire']=resize('fire2.png', (16, 16))
+	elif timeguide%3==1:
+		bloques['fire']=resize('fire3.png', (16, 16))
+	elif timeguide%3==2:
+		bloques['fire']=resize('fire1.png', (16, 16))
+	if timeguide%4==0:
+		bloques['brick']=resize('brick1.png', (32, 32))
+		jugador["sprite"]=2
+	elif timeguide%4==1:
+		bloques['brick']=resize('brick2.png', (32, 32))
+		jugador["sprite"]=1
+	elif timeguide%4==2:
+		bloques['brick']=resize('brick3.png', (32, 32))
+		jugador["sprite"]=3
+	elif timeguide%4==3:
+		bloques['brick']=resize('brick4.png', (32, 32))
+		jugador["sprite"]=4
 
 
 #--------------------------------------------------
@@ -102,8 +103,12 @@ font 			= pygame.font.Font(None, 80)
 #--------------------------------------------------------------------------------------
 # Carga de sprites
 background = resize('bg.png', (800, 600))												# Texturas del background
-personaje.append (resize('koopa1.png', (32, 64)))  										# Texturas hacia la derecha
-personaje.append (resize('koopa2.png', (32, 64)))										# """"
+personaje.append (resize('monkey1.png', (32, 32)))  										# Texturas hacia la derecha
+personaje.append (resize('monkey2.png', (32, 32)))										# """"
+personaje.append (resize('monkey3.png', (32, 32)))
+personaje.append (resize('monkey4.png', (32, 32)))
+personaje.append (resize('monkey5.png', (32, 32)))
+personaje.append (resize('monkey6.png', (32, 32)))
 personaje.append (pygame.transform.flip(resize('koopa1.png', (32, 64)), True, False)) 	# Texturas hacia la izquierda (derecha con flip)
 personaje.append(pygame.transform.flip(resize('koopa2.png', (32, 64)), True, False))	# """"
 bloques['rock']=resize('rock.png', (32, 32))											# Texturas del bloque 1 (solido, no dano)
@@ -158,20 +163,7 @@ while Juego:																# Mainloop
 	listaColisiones = jugRect.collidelistall(colisiones) 					# Lista con las colisiones que tiene el personaje
 	timeguide=moment/100
 
-	if timeguide%3==0:
-		bloques['fire']=resize('fire2.png', (16, 16))
-	elif timeguide%3==1:
-		bloques['fire']=resize('fire3.png', (16, 16))
-	elif timeguide%3==2:
-		bloques['fire']=resize('fire1.png', (16, 16))
-	if timeguide%4==0:
-		bloques['brick']=resize('brick1.png', (32, 32))
-	elif timeguide%4==1:
-		bloques['brick']=resize('brick2.png', (32, 32))
-	elif timeguide%4==2:
-		bloques['brick']=resize('brick3.png', (32, 32))
-	elif timeguide%4==3:
-		bloques['brick']=resize('brick4.png', (32, 32))
+	
 
 	if listaColisiones != []:
 		for i in listaColisiones:
@@ -202,7 +194,7 @@ while Juego:																# Mainloop
 		jugador['posicion'] = [400,0]
 		jugador['gravedad'] = 0
 
-	mover(jugador, unidad, moment, personaje)								# Animacion del jugador (WIP)
+	animacion(jugador, unidad, timeguide, personaje)								# Animacion del jugador (WIP)
 
 	#if moment%100 == 0:
 	#	acelHor += 1
