@@ -94,7 +94,7 @@ jugador			= {
 					"sprite":0, 				# Indice del sprite en la lista de los sprites del personaje
 					"cayendo":False
 					}
-font 			= pygame.font.Font(None, 80)
+font 			= pygame.font.Font(None, 60)
 
 # Inicio de identificacion del control de Arduino
 #arduinoProcess	= t.Thread(target=controlArduino,args=(jugador,))
@@ -119,7 +119,7 @@ bloques['grass']=resize('grass.png',(64,64))
 window=pygame.display.set_mode((800, 600))	#Crea ventana 800x576
 pygame.mixer.music.load("data/mainloop.mp3")
 pygame.mixer.music.set_volume(0.15)
-jump=pygame.mixer.Sound("data/jump.mp3")
+jump=pygame.mixer.Sound("data/jump.wav")
 pygame.mixer.music.play(-1)
 
 while Juego:																# Mainloop
