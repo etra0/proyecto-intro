@@ -6,16 +6,16 @@ import threading as t
 from random import randint
 
 FLAG = True
-diccBloques={'rock':[],'fire':[],'brick':[]}
+diccBloques={'rock':[],'fire':[],'grass':[]}
 cont=0
 
 for i in xrange(1000):
 	if cont%2==0:
 		if randint(0,1):
-			diccBloques['brick'].append([64*i,544])
+			diccBloques['grass'].append([64*i,544])
 		cont+=1
 	else:
-		diccBloques['brick'].append([64*i,544])
+		diccBloques['grass'].append([64*i,544])
 		cont+=1
 
 for k in xrange(25):
@@ -102,7 +102,7 @@ font 			= pygame.font.Font(None, 80)
 
 #--------------------------------------------------------------------------------------
 # Carga de sprites
-background = resize('bg.png', (800, 600))												# Texturas del background
+background = resize('bg.jpg', (800, 600))												# Texturas del background
 personaje.append (resize('monkey1.png', (64, 64)))  										# Texturas hacia la derecha
 personaje.append (resize('monkey2.png', (64, 64)))										# """"
 personaje.append (resize('monkey3.png', (64, 64)))
@@ -112,14 +112,14 @@ personaje.append (resize('monkey6.png', (64, 64)))
 bloques['rock']=resize('rock.png', (64, 64))											# Texturas del bloque 1 (solido, no dano)
 bloques['fire']=resize('fire1.png', (16, 16))
 bloques['brick']=resize('brick1.png', (64, 64))
-
+bloques['grass']=resize('grass.png',(64,64))
 #
 #--------------------------------------------------------------------------------------
 
 window=pygame.display.set_mode((800, 600))	#Crea ventana 800x576
 pygame.mixer.music.load("data/mainloop.mp3")
 pygame.mixer.music.set_volume(0.15)
-jump=pygame.mixer.Sound("data/jump.wav")
+jump=pygame.mixer.Sound("data/jump.mp3")
 pygame.mixer.music.play(-1)
 
 while Juego:																# Mainloop
@@ -136,7 +136,6 @@ while Juego:																# Mainloop
 	# for i in xrange(10):													# Dibujo de background
 	# 	window.blit(background, (800*i-bAcum, 0))							# """"
 
-	jugRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])	# Rect del jugador, sirve para comparar colisiones
 
 	for i in diccBloques:													# Dibujo de bloques y anadido para comprobar colisiones
 		for bloque in diccBloques[i]:
@@ -145,6 +144,7 @@ while Juego:																# Mainloop
 	textVidas = font.render("Vidas: {0}".format(jugador["vidas"]), 1, (255, 255, 255))
 	window.blit(textVidas, (0, 0))
 
+	jugRect=window.blit(personaje[jugador["sprite"]], jugador["posicion"])	# Rect del jugador, sirve para comparar colisiones
 	pygame.display.update()													# Actualizar la pantalla
 
 
@@ -172,16 +172,19 @@ while Juego:																# Mainloop
 				jugador['posicion'][0] = x-65
 
 			if  colisiones[i][1] < y1+64 < colisiones[i][1]+64 and x1+52 > colisiones[i][0] and x1+52 < colisiones[i][0]+64:
-				jugador['posicion'][1] 	= (jugador["posicion"][1])/64*64+32 			# Se le sumo uno porque antes rebotaba infinitamente
+				jugador['posicion'][1] 	= (jugador["posicion"][1])/64*64+40 			# Se le sumo uno porque antes rebotaba infinitamente
 				jugador['gravedad'] 	= 0
 				jugador["cayendo"] 		= False
 
-			else: jugador["cayendo"] 	= True
+			else: 
+				jugador["cayendo"] 	= True
+				jugador['sprite']=5
 
 			if jugador['salto'] == 1:											# Definicion de salto
 				jugador['gravedad'] 	= -12
 				jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
 				jugador['salto'] 		= 0
+				jugador['sprite']=5
 				jump.play()
 
 	if listaColisiones == [] or jugador["cayendo"]:
