@@ -9,7 +9,7 @@ FLAG = True
 diccBloques={'rock':[],'fire':[],'grass':[]}
 cont=0
 
-for i in xrange(1000):
+for i in xrange(20):
 	if cont%2==0:
 		if randint(0,1):
 			diccBloques['grass'].append([64*i,544])
@@ -54,6 +54,7 @@ def resize(image, size):
 	return pygame.transform.scale(image, size)
 
 def animacion(jugador, unidad, timeguide, sprites):
+	global anim
 	if timeguide%3==0:
 		bloques['fire']=resize('fire2.png', (16, 16))
 	elif timeguide%3==1:
@@ -62,21 +63,45 @@ def animacion(jugador, unidad, timeguide, sprites):
 		bloques['fire']=resize('fire1.png', (16, 16))
 	if timeguide%4==0:
 		bloques['brick']=resize('brick1.png', (64, 64))
-		jugador["sprite"]=2
+		if anim:
+			jugador["sprite"]=2
+		else:
+			jugador["sprite"]=5
 	elif timeguide%4==1:
 		bloques['brick']=resize('brick2.png', (64, 64))
-		jugador["sprite"]=1
+		if anim:
+			jugador["sprite"]=1
+		else:
+			jugador["sprite"]=5
 	elif timeguide%4==2:
 		bloques['brick']=resize('brick3.png', (64, 64))
-		jugador["sprite"]=3
+		if anim:
+			jugador["sprite"]=3
+		else:
+			jugador["sprite"]=5
 	elif timeguide%4==3:
 		bloques['brick']=resize('brick4.png', (64, 64))
-		jugador["sprite"]=4
+		if anim:
+			jugador["sprite"]=4
+		else:
+			jugador["sprite"]=5
 
+def randblock(diccBloques):
+	global guia,flag
+	ind=randint(0,1)
+	if ind or flag:
+		diccBloques['grass'].append([guia,544])
+		flag=False
+	elif not flag:
+		guia+=64
+		if randint(0,1):
+			guia+=64
+			flag=True
+	guia+=64
 
 #--------------------------------------------------
 pygame.init() 								#Inicializar pygame
-
+anim 			= True
 clock       	= pygame.time.Clock()
 bAcum			= 0							# Posicion acumulada del movimiento horizontal
 Juego 			= 1 						# Variable booleana que determina si el bucle sigue
@@ -119,13 +144,13 @@ bloques['grass']=resize('grass.png',(64,64))
 window=pygame.display.set_mode((800, 600))	#Crea ventana 800x576
 pygame.mixer.music.load("data/mainloop.mp3")
 pygame.mixer.music.set_volume(0.15)
-jump=pygame.mixer.Sound("data/jump.wav")
+jump=pygame.mixer.Sound("data/jump.ogg")
 pygame.mixer.music.play(-1)
+guia=diccBloques['grass'][-1][0]
+flag=False
 
 while Juego:																# Mainloop
-
-
-
+	randblock(diccBloques)
 
 	colisiones=[]															# Lista de colisiones
 	clock.tick(60) 															# Se setea el maximo fps
@@ -133,9 +158,6 @@ while Juego:																# Mainloop
 
 	window.blit(background, (0-bAcum%800, 0))
 	window.blit(background, (800-bAcum%800, 0))
-	# for i in xrange(10):													# Dibujo de background
-	# 	window.blit(background, (800*i-bAcum, 0))							# """"
-
 
 	for i in diccBloques:													# Dibujo de bloques y anadido para comprobar colisiones
 		for bloque in diccBloques[i]:
@@ -168,40 +190,42 @@ while Juego:																# Mainloop
 			x, y = colisiones[i][:2]
 			x1, y1 = jugador['posicion']
 
-			if y < y1 < y+64 and x < x1+64 < x+64:				# Comparacion de posicion por la derecha
-				jugador['posicion'][0] = x-65
+			if max(y1+64,y+64)-min(y1,y)< 126 and x<x1+64<x+64:				# Comparacion de posicion por la derecha
+				jugador['posicion'][0] -=velHor
 
-			if  colisiones[i][1] < y1+64 < colisiones[i][1]+64 and x1+52 > colisiones[i][0] and x1+52 < colisiones[i][0]+64:
-				jugador['posicion'][1] 	= (jugador["posicion"][1])/64*64+40 			# Se le sumo uno porque antes rebotaba infinitamente
+			if  max(x1+64,x+64)-min(x1,x)<120 and y < y1+64 < y+64:
+				jugador['posicion'][1] 	= (jugador["posicion"][1])/64*64+33 			# Se le sumo uno porque antes rebotaba infinitamente
 				jugador['gravedad'] 	= 0
 				jugador["cayendo"] 		= False
 
 			else: 
 				jugador["cayendo"] 	= True
-				jugador['sprite']=5
+				jugador['sprite']	= 5
 
 			if jugador['salto'] == 1:											# Definicion de salto
 				jugador['gravedad'] 	= -12
 				jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
 				jugador['salto'] 		= 0
-				jugador['sprite']=5
 				jump.play()
+		anim=True
 
 	if listaColisiones == [] or jugador["cayendo"]:
 		jugador["gravedad"] += 1
 		jugador["posicion"][1]	+= jugador["gravedad"]
+		if listaColisiones==[]:
+			anim=False
 
-	if jugador['posicion'][0] > 800 or jugador ['posicion'][1] > 600:		# Definicion de perder (WIP)
+	if jugador['posicion'][0] < 0 or jugador ['posicion'][1] > 600:		# Definicion de perder
 		jugador['posicion'] = [400,0]
 		jugador['gravedad'] = 0
+		jugador['vidas']-=1
 
-	animacion(jugador, unidad, timeguide, personaje)								# Animacion del jugador (WIP)
+	animacion(jugador, unidad, timeguide, personaje)								# Animacion general
 
 	#if moment%100 == 0:
 	#	acelHor += 1
 
-	# moverPantalla(diccBloques)												# Mover bloques
-	bAcum+=velHor															# 
+	bAcum+=velHor
 	#acelHor=0
 	
 
