@@ -20,17 +20,17 @@ def controlArduino():
 		indicador = AR.readline().strip()
 		if '1' in indicador:
 			jugador['salto']=1
-			print "WD",
 
 		elif '2' in indicador:
 			jugador['salto']=0
-			print "NOPE"
 
 		if '3' in indicador:
-			jugador['golpe']=1
+			# golpe(jugador, time())
+			tiempo = time()
+			jugador['arduino']=1
 
 		elif '4' in indicador:
-			pass
+			jugador['arduino'] = 0
 	
 
 def golpe(jugador, tiempo):
@@ -54,16 +54,13 @@ def animacion(jugador, unidad, timeguide, sprites):
 	global anim
 	if timeguide%3==0:
 		bloques['fire']=resize('fire2.png', (16, 16))
-		# if jugador['golpe']:
-		# 	jugador["sprite"] = 6
+
 	elif timeguide%3==1:
 		bloques['fire']=resize('fire3.png', (16, 16))
-		# if jugador['golpe']:
-		# 	jugador["sprite"] = 7
+
 	elif timeguide%3==2:
 		bloques['fire']=resize('fire1.png', (16, 16))
-		# if jugador['golpe']:
-		# 	jugador["sprite"] = 8
+
 	if timeguide%4==0:
 		bloques['brick']=resize('brick1.png', (64, 64))
 		bloques['banana']=resize('banana1.png', (48, 48))
@@ -175,7 +172,8 @@ def randblock(diccBloques, bAcum,velHor):
 pygame.init() 								#Inicializar pygame
 personaje 		= [] 						# Lista de sprites del personaje
 bloques 		= dict() 					# Lista de sprites de los bloques
-
+os.environ["SDL_VIDEO_CENTERED"] = "1"		# Se centra la pantalla.
+momentAcum=0
 def iniciar():
 	global diccBloques, anim, clock, bAcum, Partida, unidad, acelHor, velHor, Juego, jugador, font
 	diccBloques		= {'rock':[],'fire':[],'grass':[],'banana':[],'bird':[]}
@@ -184,7 +182,6 @@ def iniciar():
 	bAcum			= 0							# Posicion acumulada del movimiento horizontal
 	Partida			= 1 						# Variable booleana que determina si el bucle sigue
 	unidad 			= 4 						# Velocidad de movimiento
-	
 	acelHor			= 0							# Aceleracion Horizontal
 	velHor			= 3							# Velocidad Horizontal
 	Juego			= True
@@ -198,9 +195,13 @@ def iniciar():
 						"sprite":0, 				# Indice del sprite en la lista de los sprites del personaje
 						"cayendo":False,
 						"bananas":0,
-						"score":0
+						"score":0,
+						"arduino":0
 						}
+	global tiempo
+	tiempo = 0
 	font 			= pygame.font.Font(None, 60)
+
 
 # Inicio de identificacion del control de Arduino
 iniciar()
@@ -255,10 +256,11 @@ while Juego:
 	window.blit(background, (800-bAcum%800, 0))
 	window.blit(startingbackground, (0,0))
 	textRecord = font.render("Record: {0}".format(record), 1, (255, 255, 255))
-	window.blit(textRecord, (400, 400))
+	#window.blit(textRecord, (400, 400))
 	bAcum += 1
 	Partida = False
-	pygame.display.update()	
+	pygame.display.set_caption("SMASH YOUR BRO")
+	pygame.display.update()
 
 	for event in pygame.event.get():										# Reconocimiento de eventos
 		if event.type==pygame.QUIT:
@@ -267,12 +269,12 @@ while Juego:
 		if event.type==KEYDOWN:
 			if event.key== K_RETURN:
 				iniciar()
+
 		 		Partida = True
 		 		bAcum = 0
 
 	
 	while Partida:																# Mainloop
-		print jugador['salto']
 
 		if jugador['bananas'] >= 20:
 			jugador['vidas'] += 1
@@ -285,7 +287,7 @@ while Juego:
 		randblock(diccBloques, bAcum, velHor)
 		colisiones=[]															# Lista de colisiones
 		clock.tick(60) 															# Se setea el maximo fps
-		pygame.display.set_caption("NN | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
+		pygame.display.set_caption("SMASH YOUR BRO | FPS: "+str(round(clock.get_fps(), 2))) # Con esto se imprime los fps en el nombre del archivo
 
 		window.blit(background, (0-bAcum%800, 0))
 		window.blit(background, (800-bAcum%800, 0))
@@ -326,8 +328,10 @@ while Juego:
 			 					pygame.mixer.music.unpause()
 
 			 		
-
-		moment = pygame.time.get_ticks()										# Variable independiente para dibujar la animacion del jugador
+		if jugador['arduino']:
+			tiempo = time()
+	 		jugador['golpe'] = 1
+		moment = pygame.time.get_ticks() - momentAcum									# Variable independiente para dibujar la animacion del jugador
 		listaColisiones = jugRect.collidelistall(colisiones) 					# Lista con las colisiones que tiene el personaje
 		timeguide=moment/100
 
@@ -397,17 +401,17 @@ while Juego:
 		except:
 			pass
 
+		print jugador['golpe']
 		if jugador['golpe']:
 			if time() - tiempo > 0.3:
 				jugador['golpe'] = 0
 
-		if moment%10000 == 0:
+		if moment%500 == 0:
 			acelHor += 1
 			velHor+=1
 
 		if moment%100 == 0:
 			jugador['score'] +=1
-
 		bAcum+=velHor
 		acelHor=0
 	if jugador['score'] > record:
@@ -415,6 +419,7 @@ while Juego:
 		arch = open("score","w")
 		arch.write(str(jugador['score'])+"\n")
 		arch.close()
+	momentAcum = pygame.time.get_ticks()
 	
 		
 
