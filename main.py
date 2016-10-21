@@ -100,14 +100,14 @@ def animacion(jugador, unidad, timeguide, sprites):
 
 
 def randblock(diccBloques, bAcum,velHor):
+	diccBloques['rock'].append([640,416])
 	if not bAcum:
 		cont = 0
 		for i in xrange(15):
-			if randint(0,10) in range(0,6) or cont >= 2:
-				diccBloques['grass'].append([64*i,544])
-				cont = 0
-			else:
-				cont += 1
+			#if randint(0,10) in range(0,6) or cont >= 2:
+			diccBloques['grass'].append([64*i,544])
+			
+			
 	else:
 		cont = 0
 		coordLastBrick = diccBloques['grass'][-1]
@@ -256,7 +256,7 @@ while Juego:
 	window.blit(background, (800-bAcum%800, 0))
 	window.blit(startingbackground, (0,0))
 	textRecord = font.render("Record: {0}".format(record), 1, (255, 255, 255))
-	#window.blit(textRecord, (400, 400))
+	window.blit(textRecord, (400, 400))
 	bAcum += 1
 	Partida = False
 	pygame.display.set_caption("SMASH YOUR BRO")
@@ -346,7 +346,7 @@ while Juego:
 					if not jugador["golpe"]:
 						jugador['posicion']=[400,0]
 						jugador['vidas']-= 1
-						jugador['cayendo'] = True
+						jugador['gravedad'] = 0
 						death.play()
 					else:
 						jugador['score'] += 50
@@ -368,8 +368,8 @@ while Juego:
 
 					if max(x1+64,x+64) - min(x1,x) < 120 and y < y1 < y+64:
 						jugador['gravedad']=0
-						jugador['posicion'][1] = (jugador["posicion"][1])/64*64+33
-						pass
+						jugador['posicion'][1] = y+65
+
 					if jugador['salto'] == 1:											# Definicion de salto
 						jugador['gravedad'] 	= -24
 						jugador['posicion'][1] 	+= jugador["gravedad"]					# ***
@@ -401,7 +401,7 @@ while Juego:
 		except:
 			pass
 
-		print jugador['golpe']
+
 		if jugador['golpe']:
 			if time() - tiempo > 0.3:
 				jugador['golpe'] = 0
